@@ -13,17 +13,22 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ── Load credentials from .env file ─────────────────────────────────────────
+// ── Load credentials from .env file (Safe Load) ─────────────────────────────
 async function loadEnv() {
     const envPath = path.join(__dirname, '..', '.env');
-    const envContent = await fs.readFile(envPath, 'utf-8');
     const env = {};
-    for (const line of envContent.split('\n')) {
-        const idx = line.indexOf('=');
-        if (idx === -1) continue;
-        const key = line.substring(0, idx).trim();
-        const val = line.substring(idx + 1).trim().replace(/^"|"$/g, '');
-        env[key] = val;
+    try {
+        const envContent = await fs.readFile(envPath, 'utf-8');
+        for (const line of envContent.split('\n')) {
+            const idx = line.indexOf('=');
+            if (idx === -1) continue;
+            const key = line.substring(0, idx).trim();
+            const val = line.substring(idx + 1).trim().replace(/^"|"$/g, '');
+            env[key] = val;
+        }
+    } catch (err) {
+        // If .env file doesn't exist (e.g. in production), just return empty object
+        // and rely on process.env variables
     }
     return env;
 }
@@ -54,7 +59,7 @@ async function downloadGoogleImage(rawUrl, imgDir) {
 
     if (rawUrl.includes('lh3.googleusercontent.com/d/')) {
         fileId = rawUrl.split('/d/')[1].split('?')[0];
-        fetchUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+        fetchUrl = `https://lh3.googleusercontent.com/d/$${fileId}`;
     } else if (rawUrl.includes('drive.google.com')) {
         const fileMatch = rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
         const idMatch = rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -96,26 +101,36 @@ async function fetchPosts() {
     console.log('📥  Fetching posts from Google Sheets...');
 
     let clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY_BASE64;
+    // Accept either the Base64 version or the regular version
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY_BASE64 || process.env.GOOGLE_PRIVATE_KEY;
     let sheetId = process.env.GOOGLE_SHEET_ID;
 
     // Fall back to reading the .env file directly (for local builds)
     if (!clientEmail || !privateKey || !sheetId) {
         const env = await loadEnv();
         clientEmail = clientEmail || env['GOOGLE_CLIENT_EMAIL'];
-        privateKey = privateKey || env['GOOGLE_PRIVATE_KEY_BASE64'];
+        privateKey = privateKey || env['GOOGLE_PRIVATE_KEY_BASE64'] || env['GOOGLE_PRIVATE_KEY'];
         sheetId = sheetId || env['GOOGLE_SHEET_ID'];
     }
 
     if (!clientEmail || !privateKey || !sheetId) {
-        throw new Error('Missing GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY_BASE64, or GOOGLE_SHEET_ID');
+        throw new Error('Missing GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY (or BASE64), or GOOGLE_SHEET_ID');
     }
 
-    // Normalize private key newlines
-    privateKey = privateKey.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+    // 1. Check if the key is Base64 encoded (it won't contain "BEGIN PRIVATE KEY" if it's base64)
+    let decodedKey = privateKey;
+    if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+        decodedKey = Buffer.from(privateKey, 'base64').toString('utf-8');
+    }
+
+    // 2. Normalize newlines and remove surrounding quotes to make it acceptable by GoogleAuth
+    const formattedPrivateKey = decodedKey.replace(/\\n/g, '\n').replace(/^"|"$/g, '').replace(/"/g, '');
 
     const auth = new google.auth.GoogleAuth({
-        credentials: { client_email: clientEmail, private_key: privateKey },
+        credentials: {
+            client_email: clientEmail,
+            private_key: formattedPrivateKey
+        },
         scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     });
 
