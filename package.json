@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "node scripts/fetch-posts.mjs; vite build",
+    "prebuild": "node scripts/fetch-posts.mjs || echo '⚠️ Post fetch failed, pushing through...'",
+    "build": "vite build",
     "preview": "vite preview",
     "start": "NODE_ENV=production tsx server.ts"
   },
