@@ -247,6 +247,11 @@ app.get('/api/facebook', async (_req, res) => {
   }
 });
 
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', environment: process.env.NODE_ENV || 'development' });
+});
+
 // ─── Vite / Static ────────────────────────────────────────────────────────────
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
@@ -283,8 +288,12 @@ async function startServer() {
     });
   }
 
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => console.log(`✅  http://localhost:${port}`));
+  const port = Number(process.env.PORT) || 3000;
+  const host = '0.0.0.0'; // Essential for Docker / Coolify
+  app.listen(port, host, () => {
+    console.log(`✅  Server running at http://${host}:${port}`);
+    console.log(`📡  Health check available at http://${host}:${port}/api/health`);
+  });
 }
 
 startServer();
