@@ -39,14 +39,15 @@ jobs:
           GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
 
-      # 5. Commit and push the new posts.json and images back to GitHub
+# 5. Commit and push the new posts.json and images back to GitHub
       - name: Sync Posts back to Repository
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add public/posts.json public/img/
-          # Only commit if there are actual changes to avoid errors
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Automated fetch: Update posts and images [skip ci]" && git push)
+          
+          # FIX: Only check if STAGED files have changed before committing
+          git diff --staged --quiet || (git commit -m "Automated fetch: Update posts and images [skip ci]" && git push)
 
 #      # 6. Deploy the dist/ folder to Hostinger via FTP
 #      - name: Deploy to Hostinger via FTP
