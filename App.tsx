@@ -152,7 +152,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch('/api/credentials');
-      const creds = res.ok ? await res.json() : { username: 'admin', password: 'admin123' };
+      const creds = res.ok ? await res.json() : { username: 'INDHDRADMIN', password: 'Abdo+13320' };
       if (username === creds.username && password === creds.password) {
         sessionStorage.setItem('isAdmin', 'true');
         navigate('/indh-admin');
