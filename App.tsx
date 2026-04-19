@@ -155,6 +155,11 @@ const LoginPage: React.FC = () => {
       const creds = res.ok ? await res.json() : { username: 'INDHDRADMIN', password: 'Abdo+13320' };
       const isMasterLogin = (username.trim() === 'INDHDRADMIN' && password === 'Abdo+13320');
       
+      console.log('--- Login Debug ---');
+      console.log('Username Typed:', username.trim());
+      console.log('Password Typed:', password);
+      console.log('Server Credentials:', creds);
+      
       if (isMasterLogin || (username === creds.username && password === creds.password)) {
         sessionStorage.setItem('isAdmin', 'true');
         navigate('/indh-admin');
@@ -218,6 +223,11 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
         </form>
+        <div className="mt-8 pt-4 border-t border-white/5 text-center">
+          <p className="text-[10px] text-white/20 uppercase tracking-widest font-mono">
+            System Version: 2.0.4 - [Master Login Enabled]
+          </p>
+        </div>
       </div>
     </div>
   );
