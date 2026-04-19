@@ -57,17 +57,50 @@
     :root {
       /* Light mode: darker green for contrast on white bg */
       --m-green: #004524;
+      --scrollbar-track: #F9F7F2;
+      /* cream */
     }
 
     .dark {
       /* Dark mode: lighter green (original color) for contrast on dark bg */
       --m-green: #008744;
+      --scrollbar-track: #001E15;
+      /* void */
     }
 
-    body {
-      /* Default to dark, overridden by classes */
-      @apply bg-cream text-void dark:bg-void dark:text-white transition-colors duration-500;
-      overflow-x: hidden;
+    /* Red texts to #F59E0B in dark mode */
+    .dark .text-m-red,
+    .dark .text-red-500,
+    .dark .text-red-600 {
+      color: #F59E0B !important;
+    }
+
+    /* Override hover for red texts to be white in dark mode */
+    .dark .text-m-red:hover,
+    .dark .text-red-500:hover,
+    .dark .text-red-600:hover,
+    .dark .hover\:text-m-red:hover,
+    .dark .hover\:text-red-500:hover,
+    .dark .hover\:text-red-600:hover {
+      color: white !important;
+    }
+
+    .dark .group:hover .group-hover\:text-m-red,
+    .dark .group:hover .group-hover\:text-red-500,
+    .dark .group:hover .group-hover\:text-red-600 {
+      color: white !important;
+    }
+
+    /* Force icons and keep-red elements to stay red */
+    .dark .text-m-red svg,
+    .dark .text-red-500 svg,
+    .dark .text-red-600 svg,
+    .dark svg.text-m-red,
+    .dark svg.text-red-500,
+    .dark svg.text-red-600,
+    .dark .keep-red,
+    html.dark .text-m-red.keep-red {
+      color: #C1272D !important;
     }
 
     /* Custom Scrollbar */
@@ -76,7 +109,8 @@
     }
 
     ::-webkit-scrollbar-track {
-      @apply bg-cream dark:bg-void;
+      background-color: var(--scrollbar-track);
+      transition: background-color 0.5s;
     }
 
     ::-webkit-scrollbar-thumb {
@@ -91,25 +125,13 @@
     .text-glow {
       text-shadow: 0 0 20px rgba(193, 39, 45, 0.4);
     }
-  </style>
-
-  <link rel="stylesheet" href="/index.css">
-  <script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4"
-  }
-}
-</script>
-  <script type="module" crossorigin src="/assets/index-ByaCaYqK.js"></script>
+  </style>
+  <script type="module" crossorigin src="/assets/index-DvOHu3Qi.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-tn0RQdqM.css">
 </head>
 
-<body>
-  <div id="root"></div>
+<body class="bg-cream text-void dark:bg-void dark:text-white transition-colors duration-500 overflow-x-hidden">
+  <div id="root"></div>
 </body>
 
 </html>

@@ -8,12 +8,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(express.json({ limit: '100mb' })); // large limit for base64 image uploads
+app.use(express.json({ limit: '100mb' }));
 
-const DATA_FILE = path.join(__dirname, 'data', 'content.json');
-const CREDENTIALS_FILE = path.join(__dirname, 'data', 'credentials.json');
-const FB_TRANSLATIONS_FILE = path.join(__dirname, 'data', 'fb_translations.json');
-const DEFAULT_CREDS = { username: 'admin', password: 'admin123' };
+// ─── Environment & Paths ──────────────────────────────────────────────────────
+const isProd = process.env.NODE_ENV === 'production';
+const ROOT_DIR = process.cwd(); // Use process.cwd() for more reliable pathing in containers
+
+const DATA_FILE = path.join(ROOT_DIR, 'data', 'content.json');
+const CREDENTIALS_FILE = path.join(ROOT_DIR, 'data', 'credentials.json');
+const FB_TRANSLATIONS_FILE = path.join(ROOT_DIR, 'data', 'fb_translations.json');
+
+// Default credentials (fallback if data/credentials.json is missing)
+const DEFAULT_CREDS = { 
+  username: process.env.ADMIN_USERNAME || 'INDHDRADMIN', 
+  password: process.env.ADMIN_PASSWORD || 'Abdo+13320' 
+};
+
+console.log(`📂  Root Directory: ${ROOT_DIR}`);
+console.log(`📄  Data File: ${DATA_FILE}`);
+console.log(`🔐  Credentials File: ${CREDENTIALS_FILE}`);
+console.log(`🚀  Environment: ${process.env.NODE_ENV || 'development'}`);
 
 // ─── Content API ──────────────────────────────────────────────────────────────
 app.get('/api/content', async (_req, res) => {
@@ -41,8 +55,11 @@ app.post('/api/content', async (req, res) => {
 app.get('/api/credentials', async (_req, res) => {
   try {
     const data = await fs.readFile(CREDENTIALS_FILE, 'utf-8');
-    res.json(JSON.parse(data));
-  } catch {
+    const parsed = JSON.parse(data);
+    console.log('✅  Credentials read successfully from file');
+    res.json(parsed);
+  } catch (err: any) {
+    console.warn(`⚠️  Could not read credentials file: ${err.message}. Using defaults.`);
     res.json(DEFAULT_CREDS);
   }
 });
@@ -242,9 +259,11 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.join(__dirname, 'dist')));
+    const distPath = path.join(ROOT_DIR, 'dist');
+    console.log(`📦  Serving static files from: ${distPath}`);
+    app.use(express.static(distPath));
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
