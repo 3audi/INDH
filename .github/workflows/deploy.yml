@@ -1,0 +1,61 @@
+name: Auto-Deploy to Hostinger
+
+on:
+  # Run every 30 minutes to pick up new Facebook posts
+  schedule:
+    - cron: '*/30 * * * *'
+  # Also allow running manually from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Fetch posts from Google Sheets + Build the static site
+      - name: Fetch Posts & Build
+        run: npm run build
+        env:
+          # These come from your GitHub repository Secrets (Settings > Secrets)
+          GOOGLE_CLIENT_EMAIL: ${{ secrets.GOOGLE_CLIENT_EMAIL }}
+          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+
+      # 5. Commit and push the new posts.json and images back to GitHub
+      - name: Sync Posts back to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/posts.json public/img/
+          # Only commit if there are actual changes to avoid errors
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Automated fetch: Update posts and images [skip ci]" && git push)
+
+#      # 6. Deploy the dist/ folder to Hostinger via FTP
+#      - name: Deploy to Hostinger via FTP
+#        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+#        with:
+#          server: ${{ secrets.FTP_SERVER }}
+#          username: ${{ secrets.FTP_USER }}
+#          password: ${{ secrets.FTP_PASSWORD }}
+#          # The remote path on Hostinger where your website files live
+#          server-dir: /public_html/
+#          # Upload only the built files from the dist/ folder
+#          local-dir: ./dist/

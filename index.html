@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INDH BOUJDOUR</title>
+  <link rel="icon" href="data:," />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Readex+Pro:wght@160..700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Readex Pro', 'sans-serif'],
+            cairo: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            void: '#001E15', /* Deep Royal Green - Dark Bg */
+            cream: '#F9F7F2', /* Royal Cream - Light Bg */
+            'void-lighter': '#002E24', /* Lighter Green */
+            'm-red': '#C1272D',
+            'm-green': 'var(--m-green)',
+            glass: 'rgba(255, 255, 255, 0.03)',
+            'glass-hover': 'rgba(255, 255, 255, 0.08)',
+            'glass-border': 'rgba(255, 255, 255, 0.15)',
+            // Semantic Colors
+            'card-dark': '#002E24',
+            'card-light': '#FFFFFF',
+          },
+          animation: {
+            'blob': 'blob 10s infinite',
+            'spin-slow': 'spin 20s linear infinite',
+          },
+          keyframes: {
+            blob: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            }
+          },
+          backgroundImage: {
+            'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    :root {
+      /* Light mode: darker green for contrast on white bg */
+      --m-green: #004524;
+      --scrollbar-track: #F9F7F2;
+      /* cream */
+    }
+
+    .dark {
+      /* Dark mode: lighter green (original color) for contrast on dark bg */
+      --m-green: #008744;
+      --scrollbar-track: #001E15;
+      /* void */
+    }
+
+    /* Red texts to #F59E0B in dark mode */
+    .dark .text-m-red,
+    .dark .text-red-500,
+    .dark .text-red-600 {
+      color: #F59E0B !important;
+    }
+
+    /* Override hover for red texts to be white in dark mode */
+    .dark .text-m-red:hover,
+    .dark .text-red-500:hover,
+    .dark .text-red-600:hover,
+    .dark .hover\:text-m-red:hover,
+    .dark .hover\:text-red-500:hover,
+    .dark .hover\:text-red-600:hover {
+      color: white !important;
+    }
+
+    .dark .group:hover .group-hover\:text-m-red,
+    .dark .group:hover .group-hover\:text-red-500,
+    .dark .group:hover .group-hover\:text-red-600 {
+      color: white !important;
+    }
+
+    /* Force icons and keep-red elements to stay red */
+    .dark .text-m-red svg,
+    .dark .text-red-500 svg,
+    .dark .text-red-600 svg,
+    .dark svg.text-m-red,
+    .dark svg.text-red-500,
+    .dark svg.text-red-600,
+    .dark .keep-red,
+    html.dark .text-m-red.keep-red {
+      color: #C1272D !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background-color: var(--scrollbar-track);
+      transition: background-color 0.5s;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #C1272D;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--m-green);
+    }
+
+    .text-glow {
+      text-shadow: 0 0 20px rgba(193, 39, 45, 0.4);
+    }
+  </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-cream text-void dark:bg-void dark:text-white transition-colors duration-500 overflow-x-hidden">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
