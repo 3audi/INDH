@@ -199,6 +199,7 @@ async function fetchPosts() {
 }
 
 fetchPosts().catch(err => {
-    console.error('❌  fetch-posts failed:', err.message);
-    process.exit(1);
+    console.warn('⚠️  fetch-posts failed:', err.message);
+    console.warn('   The website will build without the latest posts.');
+    process.exit(0); // Exit with 0 to allow build to continue
 });

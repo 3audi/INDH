@@ -260,10 +260,26 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(ROOT_DIR, 'dist');
+    const indexHtml = path.join(distPath, 'index.html');
+    
+    // Diagnostic check for the dist folder
+    try {
+      await fs.access(indexHtml);
+      console.log(`✅  dist/index.html found at: ${indexHtml}`);
+    } catch (err) {
+      console.error(`❌  ERROR: dist/index.html NOT FOUND at: ${indexHtml}`);
+      console.error(`    This usually means the build step (vite build) failed or did not run.`);
+    }
+
     console.log(`📦  Serving static files from: ${distPath}`);
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(indexHtml, (err) => {
+        if (err) {
+          console.error(`❌  Failed to send index.html:`, err);
+          res.status(404).send('<h1>404 Deployment Error</h1><p>The static build files (dist/) are missing. Please check your build logs.</p>');
+        }
+      });
     });
   }
 
