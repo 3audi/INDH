@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "node scripts/fetch-posts.mjs || echo '⚠️ Warning: fetch-posts failed, proceeding with build' && vite build",
+    "build": "node scripts/fetch-posts.mjs; vite build",
     "preview": "vite preview",
     "start": "NODE_ENV=production tsx server.ts"
   },
