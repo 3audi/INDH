@@ -96,19 +96,19 @@ async function fetchPosts() {
     console.log('📥  Fetching posts from Google Sheets...');
 
     let clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY_BASE64;
     let sheetId = process.env.GOOGLE_SHEET_ID;
 
     // Fall back to reading the .env file directly (for local builds)
     if (!clientEmail || !privateKey || !sheetId) {
         const env = await loadEnv();
         clientEmail = clientEmail || env['GOOGLE_CLIENT_EMAIL'];
-        privateKey = privateKey || env['GOOGLE_PRIVATE_KEY'];
+        privateKey = privateKey || env['GOOGLE_PRIVATE_KEY_BASE64'];
         sheetId = sheetId || env['GOOGLE_SHEET_ID'];
     }
 
     if (!clientEmail || !privateKey || !sheetId) {
-        throw new Error('Missing GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, or GOOGLE_SHEET_ID');
+        throw new Error('Missing GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY_BASE64, or GOOGLE_SHEET_ID');
     }
 
     // Normalize private key newlines
@@ -132,11 +132,14 @@ async function fetchPosts() {
     const imgDir = path.join(__dirname, '..', 'public', 'img');
     await fs.mkdir(imgDir, { recursive: true });
 
-    console.log('🖼️   Downloading Google Drive images locally...');
+    // Process only the last 200 rows to keep the JSON file size manageable (~1MB)
+    const recentRows = rows.filter(row => row[0]).slice(-200);
+
+    console.log(`🖼️   Downloading Google Drive images for ${recentRows.length} recent posts...`);
 
     // Process rows and download all Google Drive images
     const data = await Promise.all(
-        rows.filter(row => row[0]).map(async (row) => {
+        recentRows.map(async (row) => {
             const rawUrls = (row[2] || '').split(',').map(u => u.trim()).filter(Boolean);
 
             // Column G = dedicated video URL; fallback: detect video URLs in Column C
