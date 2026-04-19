@@ -162,7 +162,7 @@ const LoginPage: React.FC = () => {
       }
     } catch {
       // Server unreachable — use hardcoded fallback
-      if (username === 'admin' && password === 'admin123') {
+      if (username === 'INDHDRADMIN' && password === 'Abdo+13320') {
         sessionStorage.setItem('isAdmin', 'true');
         navigate('/indh-admin');
       } else {
